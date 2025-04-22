@@ -248,7 +248,7 @@ function creatingSuccessMessage() {
     const successMessage = document.createElement('p');
     // Position the message absolutely within the viewport
     successMessage.style.position = 'absolute'; // Use absolute positioning to control placement
-    successMessage.style.bottom = '70px';       // 70px from the bottom of the viewport
+    successMessage.style.bottom = '10px';       // 70px from the bottom of the viewport
     successMessage.style.left = '50%';          // Center horizontally on the page
     successMessage.style.transform = 'translateX(-50%)'; // Offset to ensure exact horizontal center
     // Style the message background and text
@@ -273,7 +273,7 @@ function createFailureMessage() {
     const failureMessage = document.createElement('p');
     // Position the message absolutely within the viewport
     failureMessage.style.position = 'absolute'; // Use absolute positioning for precise control
-    failureMessage.style.bottom = '70px';       // 70px from the bottom of the viewport
+    failureMessage.style.bottom = '30px';       // 70px from the bottom of the viewport
     failureMessage.style.left = '50%';          // Center horizontally
     failureMessage.style.transform = 'translateX(-50%)'; // Offset to ensure exact horizontal center
     // Style the message background and text
@@ -557,6 +557,7 @@ function creatingExportButton(){
 function creatingHelpButton(){
     // Create a button element
     const helpButton = document.createElement('button');
+    helpButton.id = 'helpButton'; // Set an ID for the button
     helpButton.style.width = '44px'; // Set Width
     helpButton.style.height = '44px'; // Set Height
     helpButton.style.position = 'relative'; // Fixed position for the top-right corner
@@ -576,9 +577,7 @@ function creatingHelpButton(){
     helpImage.style.height = '100%'; // Image fills the button's height
     helpImage.style.objectFit = 'cover'; // Ensure the image covers the square area
     // Append the image to the button
-    helpButton.appendChild(helpImage);
-    // Add a click event listener to go to the specified HTML page
-    helpButton.addEventListener('click', helpButtonClick);
+    helpButton.appendChild(helpImage);    
     // Append the button to the body
     document.body.appendChild(helpButton);
     // Return the button element in case you need to manipulate it further
@@ -667,8 +666,12 @@ function setupInstructionPage(){
     beware.style.display = 'none';
     // Creating Begin Button
     choices.innerHTML = `
-        <button onclick="choose('begin')">Begin Your Quest</button>
-    `;    
+        <button id="beginQuestButton">Begin Your Quest</button>
+    `;
+    
+    document.getElementById('beginQuestButton').addEventListener('click', (event) => {
+        createFireBubbles(event, '🏝', () => choose('begin')); // Game controller emoji for beginning the quest
+    });
 }
 
 function setupBeginPage(){
@@ -692,8 +695,12 @@ function setupBeginPage(){
         "you hit your head hard on the seat next to you...";
     // Create a "Continue" button for the player to proceed to the next part of the story
     choices.innerHTML = `
-        <button onclick="choose('continue')">Continue</button>
-    `;    
+        <button id="continueButton">Continue</button>
+    `;
+    
+    document.getElementById('continueButton').addEventListener('click', (event) => {
+        createFireBubbles(event, '➡️', () => choose('continue')); // Arrow emoji for continue
+    });
 }
 
 function setupArrivalPage(){
@@ -743,9 +750,17 @@ function setupArrivalPage(){
 
     // Creating New Buttons
     choices.innerHTML = `
-        <button style="margin-right: 15px;" onclick="choose('Explore')">Explore the Island</button>
-        <button onclick="choose('Fire')">Build a Fire</button>
+        <button id="exploreButton" style="margin-right: 15px;">Explore the Island</button>
+        <button id="fireButton">Build a Fire</button>
     `;
+    
+    document.getElementById('exploreButton').addEventListener('click', (event) => {
+        createFireBubbles(event, '🗺️', () => choose('Explore')); // Map emoji for exploration
+    });
+    
+    document.getElementById('fireButton').addEventListener('click', (event) => {
+        createFireBubbles(event, '🔥', () => choose('Fire')); // Fire emoji for building fire
+    });
 }
 
 function setupExploreIslandPage(){
@@ -772,129 +787,138 @@ function setupExploreIslandPage(){
     // Making the 3 location buttons
     // Skull Rock button
     skullRockButton.style.display = 'block';
-    skullRockButton.onclick = function() {
-        // Checks count and depending on, updates energy count and images
-        count = count + 1;
-        // Skull Location will be visited on the report
-        reportVariables.skullLocation = true;
-        if(count === 1){
-            // Crosses out Skull Rock Image
-            skullRockImage.src = 'images/cross.jpeg'; // source of image
-            skullRockButton.style.display = 'none'; // makes it visible
-            energyPointsElement.style.display = 'block';
-            energyPointsElement.innerText = reportVariables.energyAfterLocation1; // changes energy points
-            // Update message about Skull Rock
-            storyText.innerText = "You decide to visit the unusual rock shaped like a skull and find yourself " +
-                            "surrounded with birds. You find multiple food sources such as animals and vegetables!"
-            storyText.style.color = "purple";
-        }
-        if(count === 2){
-            // Crossing out Skull Rock Image
-            skullRockImage.src = 'images/cross.jpeg';
-            skullRockButton.style.display = 'none';
-            energyPointsElement.style.display = 'block';
-            energyPointsElement.innerText =  reportVariables.energyAfterLocation2;
-            // Changing Text
-            storyText.innerText = "You decide to visit the unusual rock shaped like a skull and find yourself " +
-                "surrounded with birds. You find multiple food sources such as animals and vegetables!"
-            storyText.style.color = "purple";
-            // A message is displayed to user warming him to turn back
-            beware.style.position = 'fixed'; // Fixed position to stay at the bottom
-            beware.style.bottom = '90px';     // Space from the bottom
-            beware.style.left = '50%';        // Center horizontally
-            beware.style.transform = 'translateX(-50%)'; // Adjust position back to center
-            beware.style.backgroundColor = 'rgba(255, 0, 0, 0.8)'; // Semi-transparent red background
-            beware.style.color = 'white';     // White text color
-            beware.style.padding = '10px 20px'; // Padding for aesthetics
-            beware.style.borderRadius = '5px'; // Rounded corners
-            beware.style.zIndex = '1000';     // Ensure it's above other elements
-            beware.style.display = 'block';    // Show the message
-            beware.innerText = "You have searched 2 locations. Head back before it's too dark!";
+    skullRockButton.onclick = function(event) {
+        if (count < 2) {
+            createFireBubbles(event, '🌟', () => {
+                count = count + 1;
+                // Skull Location will be visited on the report
+                reportVariables.skullLocation = true;
+                if(count === 1){
+                    // Crosses out Skull Rock Image
+                    skullRockImage.src = 'images/cross.jpeg'; // source of image
+                    skullRockButton.style.display = 'none'; // makes it visible
+                    energyPointsElement.style.display = 'block';
+                    energyPointsElement.innerText = reportVariables.energyAfterLocation1; // changes energy points
+                    // Update message about Skull Rock
+                    storyText.innerText = "You decide to visit the unusual rock shaped like a skull and find yourself " +
+                                    "surrounded with birds. You find multiple food sources such as animals and vegetables!"
+                    storyText.style.color = "purple";
+                }
+                if(count === 2){
+                    // Crossing out Skull Rock Image
+                    skullRockImage.src = 'images/cross.jpeg';
+                    skullRockButton.style.display = 'none';
+                    energyPointsElement.style.display = 'block';
+                    energyPointsElement.innerText =  reportVariables.energyAfterLocation2;
+                    // Changing Text
+                    storyText.innerText = "You decide to visit the unusual rock shaped like a skull and find yourself " +
+                        "surrounded with birds. You find multiple food sources such as animals and vegetables!"
+                    storyText.style.color = "purple";
+                    // A message is displayed to user warming him to turn back
+                    beware.style.position = 'fixed'; // Fixed position to stay at the bottom
+                    beware.style.bottom = '90px';     // Space from the bottom
+                    beware.style.left = '50%';        // Center horizontally
+                    beware.style.transform = 'translateX(-50%)'; // Adjust position back to center
+                    beware.style.backgroundColor = 'rgba(255, 0, 0, 0.8)'; // Semi-transparent red background
+                    beware.style.color = 'white';     // White text color
+                    beware.style.padding = '10px 20px'; // Padding for aesthetics
+                    beware.style.borderRadius = '5px'; // Rounded corners
+                    beware.style.zIndex = '1000';     // Ensure it's above other elements
+                    beware.style.display = 'block';    // Show the message
+                    beware.innerText = "You have searched 2 locations. Head back before it's too dark!";
 
+                }
+            });
         }
     };
     // Making Ghost Cave Button
     caveButton.style.display = 'block';
-    caveButton.onclick = function() {
-        // Checks count and depending on, updates energy count and images
-        count = count + 1;
-        // Cave will be visted on the report
-        reportVariables.caveLocation = true;
-        if(count === 1){
-            // Cross out Cave Image
-            ghostLightCaveImage.src = 'images/cross.jpeg';
-            caveButton.style.display = 'none';
-            energyPointsElement.style.display = 'block';
-            energyPointsElement.innerText = reportVariables.energyAfterLocation1;
-            // Update message regarding ghost cave
-            storyText.innerText = storyText.innerText = "You decide to visit the cave but soon realize that it's extremely unsafe. " +
-                "You almost get killed by a ghost and promise yourself to never return!";
-            storyText.style.color = "blue";
-        }
-        if(count === 2){
-            // cross out Cave Image
-            ghostLightCaveImage.src = 'images/cross.jpeg';
-            caveButton.style.display = 'none';
-            energyPointsElement.style.display = 'block';
-            energyPointsElement.innerText = reportVariables.energyAfterLocation2;
-            // Update the Text of Cave Image
-            storyText.innerText = storyText.innerText = "You decide to visit the cave but soon realize that it's extremely unsafe. " +
-                "You almost get killed by a ghost and promise yourself to never return!";
-            storyText.style.color = "blue";
-            // A warning is displayed telling user to turn back
-            beware.style.position = 'fixed'; // Fixed position to stay at the bottom
-            beware.style.bottom = '90px';     // Space from the bottom
-            beware.style.left = '50%';        // Center horizontally
-            beware.style.transform = 'translateX(-50%)'; // Adjust position back to center
-            beware.style.backgroundColor = 'rgba(255, 0, 0, 0.8)'; // Semi-transparent red background
-            beware.style.color = 'white';     // White text color
-            beware.style.padding = '10px 20px'; // Padding for aesthetics
-            beware.style.borderRadius = '5px'; // Rounded corners
-            beware.style.zIndex = '1000';     // Ensure it's above other elements
-            beware.style.display = 'block';    // Show the message
-            beware.innerText = "You have searched 2 locations. Head back before it's too dark!";
+    caveButton.onclick = function(event) {
+        if (count < 2) {
+            createFireBubbles(event, '👻', () => {
+                count = count + 1;
+                // Cave will be visted on the report
+                reportVariables.caveLocation = true;
+                if(count === 1){
+                    // Cross out Cave Image
+                    ghostLightCaveImage.src = 'images/cross.jpeg';
+                    caveButton.style.display = 'none';
+                    energyPointsElement.style.display = 'block';
+                    energyPointsElement.innerText = reportVariables.energyAfterLocation1;
+                    // Update message regarding ghost cave
+                    storyText.innerText = storyText.innerText = "You decide to visit the cave but soon realize that it's extremely unsafe. " +
+                        "You almost get killed by a ghost and promise yourself to never return!";
+                    storyText.style.color = "blue";
+                }
+                if(count === 2){
+                    // cross out Cave Image
+                    ghostLightCaveImage.src = 'images/cross.jpeg';
+                    caveButton.style.display = 'none';
+                    energyPointsElement.style.display = 'block';
+                    energyPointsElement.innerText = reportVariables.energyAfterLocation2;
+                    // Update the Text of Cave Image
+                    storyText.innerText = storyText.innerText = "You decide to visit the cave but soon realize that it's extremely unsafe. " +
+                        "You almost get killed by a ghost and promise yourself to never return!";
+                    storyText.style.color = "blue";
+                    // A warning is displayed telling user to turn back
+                    beware.style.position = 'fixed'; // Fixed position to stay at the bottom
+                    beware.style.bottom = '90px';     // Space from the bottom
+                    beware.style.left = '50%';        // Center horizontally
+                    beware.style.transform = 'translateX(-50%)'; // Adjust position back to center
+                    beware.style.backgroundColor = 'rgba(255, 0, 0, 0.8)'; // Semi-transparent red background
+                    beware.style.color = 'white';     // White text color
+                    beware.style.padding = '10px 20px'; // Padding for aesthetics
+                    beware.style.borderRadius = '5px'; // Rounded corners
+                    beware.style.zIndex = '1000';     // Ensure it's above other elements
+                    beware.style.display = 'block';    // Show the message
+                    beware.innerText = "You have searched 2 locations. Head back before it's too dark!";
 
+                }
+            });
         }
     };
     // Making Forgotten Falls
     fallsButton.style.display = 'block';
-    fallsButton.onclick = function() {
-        // Checks count and depending on, updates energy count and images
-        count = count + 1;
-        // Waterfall will be visted on the report
-        reportVariables.waterfallLocation = true;
-        if(count === 1){
-            // Crossing out Forgotten Falls Image
-            forgottenFallsImage.src = 'images/cross.jpeg'; // source of cross image
-            fallsButton.style.display = 'none';
-            energyPointsElement.style.display = 'block';
-            energyPointsElement.innerText = reportVariables.energyAfterLocation1;
-            // Update information regarding the waterfall
-            storyText.innerText = "You decide to visit the ginormous waterfall which disappears once in a while. You see that it has a large pond" +
-                " and is an excellent source for fresh water and fruit."
-            storyText.style.color = "green";
-        }
-        if(count === 2){
-            // Crossing out image of Forgotten Falls
-            forgottenFallsImage.src = 'images/cross.jpeg'; // source of image
-            fallsButton.style.display = 'none';
-            energyPointsElement.style.display = 'block';
-            energyPointsElement.innerText =  reportVariables.energyAfterLocation2;
-            storyText.innerText = "You decide to visit the ginormous waterfall which disappears once in a while. You see that it has a large pond" +
-                " and is an excellent source for fresh water."
-            storyText.style.color = "green";
-            // A warning message is displayed to tell user to return back
-            beware.style.position = 'fixed';
-            beware.style.bottom = '90px';     // Space from the bottom
-            beware.style.left = '50%';        // Center horizontally
-            beware.style.transform = 'translateX(-50%)'; // Adjust position back to center
-            beware.style.backgroundColor = 'rgba(255, 0, 0, 0.8)'; // Semi-transparent red background
-            beware.style.color = 'white';     // White text color
-            beware.style.padding = '10px 20px'; // Padding for aesthetics
-            beware.style.borderRadius = '5px'; // Rounded corners
-            beware.style.zIndex = '1000';     // Ensure it's above other elements
-            beware.style.display = 'block';    // Show the message
-            beware.innerText = "You have searched 2 locations. Head back before it's too dark!";
+    fallsButton.onclick = function(event) {
+        if (count < 2) {
+            createFireBubbles(event, '💧', () => {
+                count = count + 1;
+                // Waterfall will be visted on the report
+                reportVariables.waterfallLocation = true;
+                if(count === 1){
+                    // Crossing out Forgotten Falls Image
+                    forgottenFallsImage.src = 'images/cross.jpeg'; // source of cross image
+                    fallsButton.style.display = 'none';
+                    energyPointsElement.style.display = 'block';
+                    energyPointsElement.innerText = reportVariables.energyAfterLocation1;
+                    // Update information regarding the waterfall
+                    storyText.innerText = "You decide to visit the ginormous waterfall which disappears once in a while. You see that it has a large pond" +
+                        " and is an excellent source for fresh water and fruit."
+                    storyText.style.color = "green";
+                }
+                if(count === 2){
+                    // Crossing out image of Forgotten Falls
+                    forgottenFallsImage.src = 'images/cross.jpeg'; // source of image
+                    fallsButton.style.display = 'none';
+                    energyPointsElement.style.display = 'block';
+                    energyPointsElement.innerText =  reportVariables.energyAfterLocation2;
+                    storyText.innerText = "You decide to visit the ginormous waterfall which disappears once in a while. You see that it has a large pond" +
+                        " and is an excellent source for fresh water."
+                    storyText.style.color = "green";
+                    // A warning message is displayed to tell user to return back
+                    beware.style.position = 'fixed';
+                    beware.style.bottom = '90px';     // Space from the bottom
+                    beware.style.left = '50%';        // Center horizontally
+                    beware.style.transform = 'translateX(-50%)'; // Adjust position back to center
+                    beware.style.backgroundColor = 'rgba(255, 0, 0, 0.8)'; // Semi-transparent red background
+                    beware.style.color = 'white';     // White text color
+                    beware.style.padding = '10px 20px'; // Padding for aesthetics
+                    beware.style.borderRadius = '5px'; // Rounded corners
+                    beware.style.zIndex = '1000';     // Ensure it's above other elements
+                    beware.style.display = 'block';    // Show the message
+                    beware.innerText = "You have searched 2 locations. Head back before it's too dark!";
+                }
+            });
         }
     };
     // Return Button is shown
@@ -944,10 +968,22 @@ function setupEveningPage(){
     survivalImage.style.width = '200px';
     // Giving user three types of building to user from
     choices.innerHTML = `
-        <button onclick="choose('smallShelter')" style="margin-right: 10px;">Small</button>
-        <button onclick="choose('mediumShelter')" style="margin-right: 10px;">Medium</button>
-        <button onclick="choose('largeShelter')">Large</button>
+        <button id="smallShelterBtn" style="margin-right: 10px;">Small</button>
+        <button id="mediumShelterBtn" style="margin-right: 10px;">Medium</button>
+        <button id="largeShelterBtn">Large</button>
     `;
+    
+    document.getElementById('smallShelterBtn').addEventListener('click', (event) => {
+        createFireBubbles(event, '🏕️', () => choose('smallShelter')); // Small tent emoji
+    });
+    
+    document.getElementById('mediumShelterBtn').addEventListener('click', (event) => {
+        createFireBubbles(event, '⛺', () => choose('mediumShelter')); // Medium tent emoji
+    });
+    
+    document.getElementById('largeShelterBtn').addEventListener('click', (event) => {
+        createFireBubbles(event, '🏠', () => choose('largeShelter')); // House emoji for large shelter
+    });
 }
 
 function setupFirePage(){
@@ -976,8 +1012,23 @@ function setupFirePage(){
     );
     // Giving user the choice to build a fire
     choices.innerHTML = `
-        <button onclick="choose('buildFire')">Build A Fire</button>
+        <button id="buildAFire">Build A Fire</button>
     `;
+        
+    document.getElementById('buildAFire').addEventListener('click', (event) => {
+        createFireBubbles(event, '🔥', () => { choose('buildFire'); });
+    });
+
+/*
+    const buildFireButton = document.createElement('button');
+    buildFireButton.innerText = "Build A Fire";
+    buildFireButton.onclick = (event) => {
+        createFireBubbles(event, '🔥', () => {
+            choose('buildFire');
+        });
+    };
+    choices.innerHTML = '';
+    choices.appendChild(buildFireButton);*/
 }
 
 function setupBuildFirePage(){
@@ -1071,8 +1122,12 @@ function nightTime() {
     // Give user the option to start next day
     choices.style.display = 'block';
     choices.innerHTML = `
-            <button onclick="choose('nextDay')" style="display: block; margin: 0 auto;">Next Day</button>
-        `;
+        <button id="nextDayBtn" style="display: block; margin: 0 auto;">Next Day</button>
+    `;
+    
+    document.getElementById('nextDayBtn').addEventListener('click', (event) => {
+        createFireBubbles(event, '🌅', () => choose('nextDay')); // Sunrise emoji for next day
+    });
 }
 
 function setupNextDayPage(){
@@ -1103,10 +1158,18 @@ function setupNextDayPage(){
     energyPointsElement.innerText = reportVariables.energyAfterNight;
     choices.innerHTML = `
         <div style="display: flex; justify-content: center;"> 
-            <button style="margin-right: 15px;" onclick="choose('shipAttention')">Get Ship's Attention</button> 
-            <button onclick="choose('helpOnSand')">Write HELP on sand</button> 
+            <button id="shipButton" style="margin-right: 15px;">Get Ship's Attention</button> 
+            <button id="helpButton">Write HELP on sand</button> 
         </div>
     `;
+    
+    document.getElementById('shipButton').onclick = (event) => {
+        createFireBubbles(event, '🚢', () => choose('shipAttention')); // Ship emoji
+    };
+    
+    document.getElementById('helpButton').onclick = (event) => {
+        createFireBubbles(event, '🚁', () => choose('helpOnSand')); // Helicopter emoji
+    };
 }
 
 function setupShipAttentionPage(){
@@ -1427,3 +1490,102 @@ function exportToExcel(data, fileName) {
     // Step 3: Export the workbook to a file
     XLSX.writeFile(workbook, fileName);
 }
+
+function createFireBubbles(event, icon, nextAction, numBubbles = 12, timeoutInMilliseconds = 35) {
+    
+    if (icon == 'none'){
+        if (nextAction) {
+            nextAction();
+        }
+        return;
+    }
+    
+    const bubbleContainer = document.createElement('div');
+    bubbleContainer.className = 'bubble-container';
+    document.body.appendChild(bubbleContainer);
+
+    // Emojipedia (https://emojipedia.org/) - A comprehensive emoji reference site
+    // GetEmoji (https://getemoji.com/) - Simple emoji copy-paste interface
+    // Unicode Full Emoji List (https://unicode.org/emoji/charts/full-emoji-list.html)
+    // bubble.innerHTML = '\u{1F3AE}'; // Same game controller emoji
+    // You can use any of these emojis as the icon parameter:
+    // 
+    // '🎮' - Game controller for game actions
+    // '🔥' - Fire for fire-related actions
+    // '🏕️' - Camping for shelter actions
+    // '🌅' - Sunrise for new day
+    // '🚢' - Ship for ship-related actions
+    // '🚁' - Helicopter for rescue
+    // '📖' - Book for instructions
+    // '❓' - Question mark for help
+    // '💧' - Water drop for waterfall
+    // '👻' - Ghost for cave
+    // '🌟' - Star for special locations
+    // '⛺' - Tent for medium shelter
+    // '🏠' - House for large shelter
+    // '➡️' - Arrow for continue/next
+
+    const buttonRect = event.target.getBoundingClientRect();
+    const buttonCenter = {
+        x: buttonRect.left + buttonRect.width / 2,
+        y: buttonRect.top + buttonRect.height / 2
+    };
+    
+    const innerRadius = Math.max(buttonRect.width, buttonRect.height) / 2;
+    const outerRadius = innerRadius * 1.5;
+
+    let completedAnimations = 0;
+
+    for (let i = 0; i < numBubbles; i++) {
+        setTimeout(() => {
+            const bubble = document.createElement('div');
+            bubble.className = 'fire-bubble';
+            bubble.innerHTML = icon;
+            
+            const radius = i % 2 === 0 ? innerRadius : outerRadius;
+            const angle = ((i / (numBubbles/2)) * 2 * Math.PI) + (Math.random() * 0.5 - 0.25);
+            
+            const offsetX = radius * Math.cos(angle);
+            const offsetY = radius * Math.sin(angle);
+            
+            const randX = (Math.random() - 0.5) * 15;
+            const randY = (Math.random() - 0.5) * 15;
+            
+            bubble.style.left = `${buttonCenter.x + offsetX + randX}px`;
+            bubble.style.top = `${buttonCenter.y + offsetY + randY}px`;
+            
+            bubbleContainer.appendChild(bubble);
+            
+            bubble.addEventListener('animationend', () => {
+                bubble.remove();
+                completedAnimations++;
+                if (completedAnimations === numBubbles) {
+                    bubbleContainer.remove();
+                    if (nextAction) {
+                        nextAction();
+                    }
+                }
+            });
+        }, i * timeoutInMilliseconds);
+    }
+}
+
+// Event listener setup
+document.addEventListener('DOMContentLoaded', () => {
+    const instructionsButton = document.getElementById('button1');
+    if (instructionsButton) {
+        instructionsButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            createFireBubbles(event, '📖', () => choose('instruct')); // Book emoji for instructions
+        });
+    }
+
+    // Help button click handler
+    const helpButton = document.getElementById('helpButton');
+    if (helpButton) {        
+        helpButton.addEventListener('click', (event) => {
+            // 🆘
+            createFireBubbles(event, '❓', () => helpButtonClick()); // Question mark for help
+        });
+    }
+});
