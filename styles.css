@@ -499,4 +499,14 @@ footer a:hover {
     z-index: 1000;
 }
 
+/* Confetti Animation */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background-color: #f00;
+    pointer-events: none;
+    z-index: 9999;
+}
+
 

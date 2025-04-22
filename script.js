@@ -1250,6 +1250,8 @@ function setupSuccessPage(){
             <button onclick="choose('report')">Report</button>
         </div>
     `;
+    // Launch confetti animation
+    launchConfetti();
 }
 
 function setupReportPage(){
@@ -1567,6 +1569,65 @@ function createFireBubbles(event, icon, nextAction, numBubbles = 12, timeoutInMi
                 }
             });
         }, i * timeoutInMilliseconds);
+    }
+}
+
+// Create a confetti particle
+function createConfettiParticle(isLeft) {
+    const particle = document.createElement('div');
+    particle.className = 'confetti';
+    particle.style.position = 'fixed';
+    particle.style.bottom = '0';
+    particle.style.width = '10px';
+    particle.style.height = '10px';
+    particle.style.backgroundColor = getRandomColor();
+    particle.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+    
+    // Set starting position based on left or right side
+    particle.style.left = isLeft ? '10%' : '90%';
+    
+    return particle;
+}
+
+// Get random color for confetti
+function getRandomColor() {
+    const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Animate confetti
+function animateConfetti(particle) {
+    const animation = particle.animate([
+        { 
+            transform: `translate(${(Math.random() - 0.5) * 200}px, 0) rotate(0deg)`,
+            opacity: 1 
+        },
+        { 
+            transform: `translate(${(Math.random() - 0.5) * 400}px, -${window.innerHeight}px) rotate(${360 + Math.random() * 360}deg)`,
+            opacity: 0
+        }
+    ], {
+        duration: 2000 + Math.random() * 1000,
+        easing: 'cubic-bezier(.37,0,.63,1)'
+    });
+
+    animation.onfinish = () => particle.remove();
+}
+
+// Launch confetti
+function launchConfetti() {
+    for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+            // Create left side confetti
+            const leftParticle = createConfettiParticle(true);
+            document.body.appendChild(leftParticle);
+            animateConfetti(leftParticle);
+
+            // Create right side confetti
+            const rightParticle = createConfettiParticle(false);
+            document.body.appendChild(rightParticle);
+            animateConfetti(rightParticle);
+        }, i * 50); // Stagger the launch of particles
     }
 }
 
